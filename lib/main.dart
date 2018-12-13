@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
 
 void main() {
   runApp(new MyApp());
@@ -29,17 +28,96 @@ class ChatScreen extends StatelessWidget {
     Navigator.of(context).push(route);
   }
 
+  AppBar _buildAppBar() {
+    return AppBar(
+      titleSpacing: -5,
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(right: 10),
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(this.avatarUrl)
+              )
+          ),
+          Text(this.name)
+        ]
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: Row(
-          children: <Widget>[
-            new CircleAvatar(backgroundImage: new NetworkImage(this.avatarUrl)),
-            new Text(this.name)
-          ]
-        )
-      )
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/wallpaper.png'),
+                fit: BoxFit.cover,
+              )
+            ),
+          ),
+          Column(
+            children: <Widget> [
+              Expanded(
+                child: ListView(
+                  children: <Widget>[
+                    Text("msg1"),
+                    Text("msg2"),
+                  ]
+                )
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 8, left: 5, right: 5),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Container(
+                        margin: EdgeInsets.only(right: 5),
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(50.0)
+                            )
+                        ),
+                        child: Row(
+                          children: <Widget> [
+                            IconButton(
+                              icon: Icon(Icons.sentiment_very_satisfied),
+                              onPressed: () => print("emoji"),
+                            ),
+                            Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Digite aqui..."
+                                ),
+                              )
+                            ),
+                            Icon(Icons.attach_file),
+                          ]
+                        )
+                        ),
+                    ),
+                    FloatingActionButton(
+                      onPressed: () => print("send"),
+                      backgroundColor: Theme.of(context).primaryColor,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 5),
+                        child: Icon(Icons.send, size: 27,),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          )
+        ]
+      ),
     );
   }
 }
@@ -91,6 +169,11 @@ class ChatListState extends State<ChatList> {
       body: new ListView(
         padding: const EdgeInsets.only(top: 10.0),
         children: _rowBuilder(),
+      ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () => print("click"),
+          backgroundColor: Theme.of(context).primaryColor,
+          child: Icon(Icons.message),
       ),
     );
   }
