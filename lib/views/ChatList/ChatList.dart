@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'ChatRow.dart';
+import '../ContactsList/ContactsList.dart';
 
 class ChatListState extends State<ChatList> {
   _rowBuilder() {
@@ -20,6 +22,15 @@ class ChatListState extends State<ChatList> {
     ];
   }
 
+  _openContacts() {
+    var route = MaterialPageRoute<void>(
+      builder: (context) {
+        return ContactsList();
+      },
+    );
+    Navigator.of(context).push(route);
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -31,7 +42,7 @@ class ChatListState extends State<ChatList> {
         children: _rowBuilder(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => print("click"),
+        onPressed: _openContacts,
         backgroundColor: Theme.of(context).primaryColor,
         child: Icon(Icons.message),
       ),

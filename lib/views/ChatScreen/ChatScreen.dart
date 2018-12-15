@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatelessWidget {
-  ChatScreen({Key key, this.name, this.avatarUrl}) : super(key: key);
+  ChatScreen({Key key, this.name, this.avatarUrl, this.uid}) : super(key: key);
   final name;
   final avatarUrl;
+  final uid;
 
   AppBar _buildAppBar() {
     return AppBar(

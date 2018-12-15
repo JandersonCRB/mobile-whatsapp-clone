@@ -29,7 +29,6 @@ class App extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         } else {
-          print(snapshot.hasData);
           if (snapshot.hasData) {
             return new ChatList();
             // return new ChatList(uuid: snapshot.data.uid);

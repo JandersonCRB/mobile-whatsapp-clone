@@ -15,7 +15,6 @@ class ChatRow extends StatelessWidget {
         );
       },
     );
-    print(route);
     Navigator.of(context).push(route);
   }
 
