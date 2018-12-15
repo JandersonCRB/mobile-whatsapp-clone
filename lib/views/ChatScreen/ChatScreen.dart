@@ -1,10 +1,34 @@
 import 'package:flutter/material.dart';
 
-class ChatScreen extends StatelessWidget {
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+class ChatScreen extends StatefulWidget {
   ChatScreen({Key key, this.name, this.avatarUrl, this.uid}) : super(key: key);
   final name;
   final avatarUrl;
   final uid;
+  @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final myController = TextEditingController();
+  var uid = "";
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.currentUser().then((user) {
+      setState(() => uid = user.uid);
+    });
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the Widget is disposed
+    myController.dispose();
+    super.dispose();
+  }
 
   AppBar _buildAppBar() {
     return AppBar(
@@ -15,12 +39,44 @@ class ChatScreen extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(right: 10),
             child: CircleAvatar(
-              backgroundImage: NetworkImage(this.avatarUrl),
+              backgroundImage: NetworkImage(widget.avatarUrl),
             ),
           ),
-          Text(this.name),
+          Text(widget.name),
         ],
       ),
+    );
+  }
+
+  _sendMsg() async {
+    var message = myController.text.toString();
+    Firestore.instance
+        .collection('messages')
+        .add({'from': uid, 'to': widget.uid, 'message': message});
+    myController.clear();
+  }
+
+  _bodyBuild() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('messages').snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return Center(child: CircularProgressIndicator());
+          default:
+            return new ListView(
+              children: snapshot.data.documents
+                  .where((document) =>
+                      document['from'] == uid ||
+                      document['from'] == widget.uid && document['to'] == uid ||
+                      document['to'] == widget.uid)
+                  .map((DocumentSnapshot document) {
+                return Text(document['message']);
+              }).toList(),
+            );
+        }
+      },
     );
   }
 
@@ -40,12 +96,7 @@ class ChatScreen extends StatelessWidget {
           Column(
             children: <Widget>[
               Expanded(
-                child: ListView(
-                  children: <Widget>[
-                    Text("msg1"),
-                    Text("msg2"),
-                  ],
-                ),
+                child: _bodyBuild(),
               ),
               Padding(
                 padding: EdgeInsets.only(top: 8, bottom: 8, left: 5, right: 5),
@@ -75,6 +126,7 @@ class ChatScreen extends StatelessWidget {
                             ),
                             Expanded(
                               child: TextField(
+                                controller: myController,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: "Digite aqui...",
@@ -97,7 +149,7 @@ class ChatScreen extends StatelessWidget {
                       ),
                     ),
                     FloatingActionButton(
-                      onPressed: () => print("send"),
+                      onPressed: _sendMsg,
                       backgroundColor: Theme.of(context).primaryColor,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 5),
